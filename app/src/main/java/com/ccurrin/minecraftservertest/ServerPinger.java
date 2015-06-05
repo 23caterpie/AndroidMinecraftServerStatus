@@ -87,7 +87,7 @@ public class ServerPinger
         return (afterTime - beforeTime);
     }
 
-    public StatusResponse readStatus() throws IOException
+    public StatusResponse readStatus() throws IOException, IllegalStateException
     {
         Gson gson = new Gson();
 
@@ -115,8 +115,8 @@ public class ServerPinger
         byte[] jsonInput = new byte[length];
         streamFromServer.readFully(jsonInput);
         String json = new String(jsonInput);
-
-        StatusResponse response = gson.fromJson(json, StatusResponse.class);
+        StatusResponse response;
+        response = gson.fromJson(json, StatusResponse.class);
         outputByteArray.close();
         statusPacket.close();
         return response;

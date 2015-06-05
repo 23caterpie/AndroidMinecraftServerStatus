@@ -61,7 +61,6 @@ public class LookupService extends IntentService
             i.putExtra("MinecraftServerVersionProtocol", "dummyVersionProtocol");
             i.putExtra("MinecraftServerDescription", "DummyDescription");
         }
-
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
