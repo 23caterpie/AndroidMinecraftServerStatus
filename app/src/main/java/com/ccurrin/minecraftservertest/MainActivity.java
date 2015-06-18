@@ -4,16 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
@@ -36,6 +38,9 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout connectionLayout;
     private LinearLayout softwareLayout;
     private LinearLayout playersLayout;
+    private ArrayList<ImageView> playerAvatars;
+    private ArrayList<ProgressBar> playerAvatarProgress;
+    private ArrayList<LoadPlayerAvatar> avatarLoaders;
     private GridLayout playerGrid;
 
     @Override
@@ -68,7 +73,9 @@ public class MainActivity extends AppCompatActivity
         softwareLayout.setVisibility(View.GONE);
         playersLayout = (LinearLayout) findViewById(R.id.players_layout);
         playersLayout.setVisibility(View.GONE);
-
+        playerAvatars = new ArrayList<>();
+        playerAvatarProgress = new ArrayList<>();
+        avatarLoaders = new ArrayList<>();
         initPlayerGrid();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(lookupReceiver,
@@ -213,6 +220,13 @@ public class MainActivity extends AppCompatActivity
 
         TextView playersHeaderTextView = (TextView) findViewById(R.id.players_header);
         playersHeaderTextView.setText("Online Players: " + onlinePlayers + "/" + maxPlayers);
+        playerAvatars.clear();
+        playerAvatarProgress.clear();
+        for(LoadPlayerAvatar eachLoader : avatarLoaders)
+        {
+            eachLoader.cancel(true);
+        }
+        avatarLoaders.clear();
         playerGrid.removeAllViews();
         if(playersLayout.getChildCount() > 2)
             playersLayout.removeViews(2, playersLayout.getChildCount() - 2);
@@ -249,12 +263,23 @@ public class MainActivity extends AppCompatActivity
                 avatarLayoutParams.setMargins(margin, margin, margin, 0);
                 avatarLayoutParams.width = avatarLayoutParams.height = avatarWidth;
                 avatar.setLayoutParams(avatarLayoutParams);
-                avatar.setImageResource(R.drawable.blank_avatar);
+                playerAvatars.add(avatar);
+
+                ProgressBar avatarLoading = new ProgressBar(this);
+                avatarLoading.setLayoutParams(avatarLayoutParams);
+                playerAvatarProgress.add(avatarLoading);
+
+                LoadPlayerAvatar loader = new LoadPlayerAvatar();
+                loader.index = playerAvatars.size() - 1;
+                loader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "http://cravatar.eu/helmavatar/" + name + ".png");
+                avatarLoaders.add(loader);
+                playerInfo.addView(avatarLoading);
                 playerInfo.addView(avatar);
 
                 TextView playerName = new TextView(this);
-                //LinearLayout.LayoutParams textViewLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                //playerName.setLayoutParams(textViewLayoutParams);
+                LinearLayout.LayoutParams textViewLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                textViewLayoutParams.gravity = Gravity.CENTER;
+                playerName.setLayoutParams(textViewLayoutParams);
                 playerName.setText(name);
                 playerName.setEnabled(true);
                 playerInfo.addView(playerName);
@@ -273,14 +298,73 @@ public class MainActivity extends AppCompatActivity
 
     private void initPlayerGrid()
     {
-        //FIX THIS CRAP
         playerGrid = (GridLayout) findViewById(R.id.player_grid);
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        DisplayMetrics displaymetrics = this.getResources().getDisplayMetrics();
         int totalWidth = displaymetrics.widthPixels;
         float density = displaymetrics.density;
-        float availableWidth = totalWidth - (14 / density);
-        float widthOfColumn = 74 / density;
+        Log.d("Initializing Grid", "Total Width: " + totalWidth + "Density: " + density);
+        float availableWidth = totalWidth - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, displaymetrics);;
+        float widthOfColumn = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 74, displaymetrics);
         playerGrid.setColumnCount((int)availableWidth / (int)widthOfColumn);
+    }
+
+    private class LoadPlayerAvatar extends AsyncTask<String, String, Bitmap>
+    {
+        public int index = -1;
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            try
+            {
+                playerAvatarProgress.get(index).setVisibility(View.VISIBLE);
+                playerAvatars.get(index).setVisibility(View.GONE);
+            }
+            catch(IndexOutOfBoundsException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        protected Bitmap doInBackground(String... args)
+        {
+            Bitmap bitmap = null;
+            try
+            {
+                bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+        protected void onPostExecute(Bitmap image)
+        {
+            if(image != null)
+            {
+                try
+                {
+                    playerAvatars.get(index).setImageBitmap(image);
+                }
+                catch(IndexOutOfBoundsException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                playerAvatars.get(index).setImageResource(R.drawable.blank_avatar);
+            }
+            try
+            {
+                playerAvatarProgress.get(index).setVisibility(View.GONE);
+                playerAvatars.get(index).setVisibility(View.VISIBLE);
+            }
+            catch(IndexOutOfBoundsException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

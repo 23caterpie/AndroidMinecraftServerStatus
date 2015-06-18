@@ -19,7 +19,7 @@
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="2dp"
             android:orientation="vertical">
 
@@ -40,7 +40,7 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="5dp">
 
                     <LinearLayout
@@ -73,7 +73,8 @@
                     <TextView android:id="@+id/description_body"
                         android:background="@drawable/body_box"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:padding="5dp" />
 
                 </LinearLayout>
@@ -82,7 +83,7 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="5dp">
 
                     <TextView android:id="@+id/software_header"
@@ -94,7 +95,8 @@
                     <TextView android:id="@+id/software_body"
                         android:background="@drawable/body_box"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:padding="5dp" />
 
                 </LinearLayout>
@@ -116,8 +118,7 @@
                 <GridLayout android:id="@+id/player_grid"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/body_box"
-                    android:columnCount="8">
+                    android:background="@drawable/body_box">
                 </GridLayout>
 
             </LinearLayout>
