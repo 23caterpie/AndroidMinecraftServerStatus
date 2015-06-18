@@ -35,6 +35,7 @@ public class LookupService extends IntentService
 
         Intent i = new Intent(LOOKUP_DONE);
 
+        i.putExtra("OriginalURL", passedURL);
         i.putExtra("MinecraftServerHost", server.getHost());
         i.putExtra("MinecraftServerPort", server.getPort());
         try

@@ -2,6 +2,8 @@
     <string name="app_name">MinecraftServerTest</string>
 
     <string name="action_settings">Settings</string>
-    <string name="edit_message">Enter Server URL</string>
-    <string name="button_send">Ping!</string>
+    <string name="edit_message">Enter Server IP or URL</string>
+    <string name="button_send">Check!</string>
+    <string name="button_save">Save</string>
+    <string name="connection_speed">connection speed</string>
 </resources>
