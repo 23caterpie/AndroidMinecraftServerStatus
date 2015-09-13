@@ -71,8 +71,10 @@
                     </LinearLayout>
 
                     <TextView android:id="@+id/description_body"
-                        android:background="@drawable/body_box"
+                        android:background="@drawable/dark_body_box"
                         android:layout_width="match_parent"
+                        android:textColor="#FFAAAAAA"
+                        android:bufferType="spannable"
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:padding="5dp" />
@@ -127,6 +129,7 @@
                 android:layout_gravity="fill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:bufferType="spannable"
                 android:text="..." />
 
         </LinearLayout>

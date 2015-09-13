@@ -10,6 +10,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -155,6 +158,9 @@ public class MainActivity extends AppCompatActivity
                                  ArrayList<String> sampleNames, String versionName, String versionProtocol,
                                  String description)
     {
+        spinner.setVisibility(View.GONE);
+
+        /** START DEBUG TEXTVIEW */
         TextView serverLookupTextView = (TextView) findViewById(R.id.output_message);
         StringBuilder nameAccumulator = new StringBuilder();
         if(sampleNames.size() == 0 && onlinePlayers > 0)
@@ -173,19 +179,35 @@ public class MainActivity extends AppCompatActivity
                 nameAccumulator.append(" more...");
             }
         }
-        spinner.setVisibility(View.GONE);
-        serverLookupTextView.setText("Host: " + host + "\nPort: " + port + "\nLatency: " + latency +
+        serverLookupTextView.setText(/*"Host: " + host + "\nPort: " + port + "\nLatency: " + latency +
                                      "\nPlayers: " + onlinePlayers + " / " + maxPlayers +
                                      nameAccumulator.toString() +
                                      "\nVersion: " + versionName + " : " + versionProtocol +
-                                     "\nDescription: " + description);
+                                     "\nDescription: " + description +
+                                     "\n");*//*CharSequenceFormatting.formatTextToMinecraftStyle("\u00A7nMinecraft Formatting\n" +
+                                                                                              "\n" +
+                                                                                              "\u00A7r\u00A700 \u00A711 \u00A722 \u00A733\n" +
+                                                                                              "\u00A744 \u00A755 \u00A766 \u00A777\n" +
+                                                                                              "\u00A788 \u00A799 \u00A7aa \u00A7bb\n" +
+                                                                                              "\u00A7cc \u00A7dd \u00A7ee \u00A7ff\n" +
+                                                                                              "\n" +
+                                                                                              "\u00A7r\u00A70k \u00A7kMinecraft\n" +
+                                                                                              "\u00A7rl \u00A7lMinecraft\n" +
+                                                                                              "\u00A7rm \u00A7mMinecraft\n" +
+                                                                                              "\u00A7rn \u00A7nMinecraft\n" +
+                                                                                              "\u00A7ro \u00A7oMinecraft\n" +
+                                                                                              "\u00A7rr \u00A7rMinecraft"));*/
+                                     CharSequenceFormatting.formatTextToMinecraftStyle("\u00A73c\u00A74c\u00A75c\u00A76c\u00A77c\n" +
+                                                                                       "\u00A732\u00A742\u00A752\u00A762\u00A772\n" +
+                                                                                       "\u00A73<\u00A74<\u00A75<\u00A76<\u00A77<\n"));
+        /** END DEBUG TEXTVIEW */
 
         TextView connectionHeaderTextView = (TextView) findViewById(R.id.connection_header);
         TextView connectionSpeedTextView = (TextView) findViewById(R.id.connection_speed);
         TextView descriptionBodyTextView = (TextView) findViewById(R.id.description_body);
         connectionHeaderTextView.setText(url);
         connectionSpeedTextView.setText(latency + "ms");
-        descriptionBodyTextView.setText(description);
+        descriptionBodyTextView.setText(CharSequenceFormatting.formatTextToMinecraftStyle(description));
         if(latency < 0)
         {
             connectionBars.setImageResource(R.drawable.connection_speed_0);
@@ -289,7 +311,11 @@ public class MainActivity extends AppCompatActivity
             if (sampleNames.size() < onlinePlayers)
             {
                 TextView morePlayers = new TextView(this);
+                GridLayout.LayoutParams cellLayoutParams = new GridLayout.LayoutParams();
+                cellLayoutParams.setGravity(Gravity.CENTER);
                 morePlayers.setText("...+" + (onlinePlayers - sampleNames.size()) + " more");
+                morePlayers.setGravity(Gravity.CENTER);
+                morePlayers.setLayoutParams(cellLayoutParams);
                 playerGrid.addView(morePlayers);
             }
         }
@@ -324,6 +350,7 @@ public class MainActivity extends AppCompatActivity
             catch(IndexOutOfBoundsException e)
             {
                 e.printStackTrace();
+                this.cancel(true);
             }
         }
         protected Bitmap doInBackground(String... args)
@@ -341,23 +368,12 @@ public class MainActivity extends AppCompatActivity
         }
         protected void onPostExecute(Bitmap image)
         {
-            if(image != null)
-            {
-                try
-                {
-                    playerAvatars.get(index).setImageBitmap(image);
-                }
-                catch(IndexOutOfBoundsException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-            else
-            {
-                playerAvatars.get(index).setImageResource(R.drawable.blank_avatar);
-            }
             try
             {
+                if(image != null)
+                    playerAvatars.get(index).setImageBitmap(image);
+                else
+                    playerAvatars.get(index).setImageResource(R.drawable.blank_avatar);
                 playerAvatarProgress.get(index).setVisibility(View.GONE);
                 playerAvatars.get(index).setVisibility(View.VISIBLE);
             }
